@@ -10,8 +10,16 @@ export const searchCities = async (term) => {
   window.alert('Nenhuma cidade encontrada');
 };
 
-searchCities('Rio');
-
-export const getWeatherByCity = (/* cityURL */) => {
-//   seu código aqui
+export const getWeatherByCity = async (cityURL) => {
+  const API_URL = `http://api.weatherapi.com/v1/current.json?lang=pt&key=${TOKEN}&q=${cityURL}`;
+  const response = await fetch(API_URL);
+  const { location, current } = await response.json();
+  return {
+    temp: current.temp_c,
+    condition: current.condition.text,
+    icon: current.condition.icon,
+    country: location.country,
+    name: location.name,
+    url: cityURL,
+  };
 };
