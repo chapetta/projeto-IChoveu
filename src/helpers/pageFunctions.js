@@ -78,6 +78,7 @@ export function showForecast(forecastList) {
  */
 export function createCityElement(cityInfo) {
   const { name, country, temp, condition, icon, url } = cityInfo;
+  const MAX_DAYS = 7;
 
   const ulElement = document.querySelector('#cities');
   const cityElement = createElement('li', 'city');
@@ -97,16 +98,32 @@ export function createCityElement(cityInfo) {
 
   const iconElement = createElement('img', 'condition-icon');
   iconElement.src = icon.replace('64x64', '128x128');
-
+  const buttonSearch = document.createElement('button');
+  buttonSearch.textContent = 'Ver previsão';
+  buttonSearch.addEventListener('click', async () => {
+    const API_URL = `http://api.weatherapi.com/v1/forecast.json?lang=pt&key=${import.meta.env.VITE_TOKEN}&q=${url}&days=${MAX_DAYS}`;
+    const response = await fetch(API_URL);
+    const { forecast: { forecastday } } = await response.json();
+    const result = forecastday.map((item) => {
+      return {
+        date: item.date,
+        maxTemp: item.day.maxtemp_c,
+        minTemp: item.day.mintemp_c,
+        condition: item.day.condition.text,
+        icon: `http:${item.day.condition.icon}`,
+      };
+    });
+    showForecast(result);
+  });
   const infoContainer = createElement('div', 'city-info-container');
   infoContainer.appendChild(tempContainer);
   infoContainer.appendChild(iconElement);
+  infoContainer.appendChild(buttonSearch);
 
   cityElement.appendChild(headingElement);
   cityElement.appendChild(infoContainer);
-  getWeatherByCity(url);
   ulElement.appendChild(cityElement);
-
+  getWeatherByCity(url);
   return cityElement;
 }
 
